@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "412572988506",
+    "project_id": "kidzo-87c6c",
+    "storage_bucket": "kidzo-87c6c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:412572988506:android:76d6fa984d8d5fa3539463",
+        "android_client_info": {
+          "package_name": "com.kidzo.kidzo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "412572988506-nouc9thb97mjcg4pqpo8tnrjf5us0s71.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kidzo.kidzo",
+            "certificate_hash": "b6f17f47ea4d454471a5f55cebffe0dd08e6bff3"
+          }
+        },
+        {
+          "client_id": "412572988506-v3rdh3rnq8avuirjpjgd391mmf54lmnu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB19elkHwYs00eyRBq4ZmwBr3-YceYyhDE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "412572988506-v3rdh3rnq8avuirjpjgd391mmf54lmnu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
