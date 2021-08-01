@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:kidzo/screens/home.dart';
 import 'package:kidzo/screens/login.dart';
 
 void main() async {
@@ -19,7 +21,17 @@ class MyApp extends StatelessWidget {
 
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if(snapshot.hasData){
+            return HomePage();
+          }
+          else{
+            return LoginPage();
+          }
+        },),
     );
   }
+
 }
