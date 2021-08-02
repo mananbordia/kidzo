@@ -80,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     return Column(
       children: [
         TextField(
+          obscureText: true,
           keyboardType: TextInputType.phone,
           inputFormatters: <TextInputFormatter>[
             FilteringTextInputFormatter.digitsOnly,
