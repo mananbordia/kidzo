@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:kidzo/services/database.dart';
 
 class UserData{
 
@@ -18,15 +19,15 @@ class UserData{
   // Refer Github
   UserData.fromJson(Map<String, dynamic> data) :
     this(
-    phoneNumber : data['phoneNumber'],
-    name : data['name'],
-    age : data['age'],
-    kidzoCoins : data['kidzoCoins'],
-    affiliatedGroupIds : data['affiliatedGroupIds'],
-    createdAt : data['createdAt'],
-    lastUpdatedAt : data['lastUpdatedAt'],
-    profileImgUrl : data['profileImgUrl'],
-      );
+      phoneNumber : data['phoneNumber'],
+      name : data['name'],
+      age : data['age'],
+      kidzoCoins : data['kidzoCoins'],
+      affiliatedGroupIds : data['affiliatedGroupIds'].length == 0 ? [] : data['affiliatedGroupIds'].map<String>((e) => e.toString()).toList(),
+      createdAt : data['createdAt'],
+      lastUpdatedAt : data['lastUpdatedAt'],
+      profileImgUrl : data['profileImgUrl'],
+    );
 
   // Refer Github
   Map<String, dynamic> toJson(){
@@ -45,6 +46,9 @@ class UserData{
   addUserToGroup(String groupId){
     affiliatedGroupIds.add(groupId);
     makeUpdates();
+
+    // TODO : Change it to update user
+    DatabaseService.addNewUser(this);
   }
 
   makeUpdates(){

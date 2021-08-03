@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:kidzo/services/authentication.dart';
 
 enum LoginPageState{
   SHOW_ENTER_PHONE_NUMBER_STATE,
@@ -19,7 +20,6 @@ class _LoginPageState extends State<LoginPage> {
   LoginPageState pageState = LoginPageState.SHOW_ENTER_PHONE_NUMBER_STATE;
   TextEditingController _phoneController = TextEditingController();
   TextEditingController _otpController = TextEditingController();
-  FirebaseAuth _auth = FirebaseAuth.instance;
   late String _verificationId;
 
   @override
@@ -126,58 +126,45 @@ class _LoginPageState extends State<LoginPage> {
     String userPhoneNumber = "+91"+_phoneController.text.trim();
     print(userPhoneNumber);
     // TODO : Add some checks here
-
-    await _auth.verifyPhoneNumber(
-        timeout: Duration(seconds: 10),
-        //+911234567890
-        phoneNumber: userPhoneNumber,
-        // When verification is automatically done
-        verificationCompleted: (credential) async {
-          print("Verified Successfully : $credential");
-          try {
-            await _signInViaPhoneAuthCredentials(credential);
-          }catch(e){
-            print("Something went wrong : $e");
-            setState(() {
-              pageState = LoginPageState.SHOW_ENTER_PHONE_NUMBER_STATE;
-            });
-          }
-        },
-        // When phone number is wrong or anything fails
-        verificationFailed: (e) async {
-          print("Something went wrong : $e");
-        },
-        // When code is sent to user
-        codeSent: (verificationId, forceResendToken) async {
-          // Show OTP Page
-          setState(() {
-            pageState = LoginPageState.SHOW_VERIFICATION_IN_PROGRESS_STATE;
-          });
-          print("Code Sent : $verificationId , $forceResendToken");
-        },
-        // After timeout
-        codeAutoRetrievalTimeout: (verificationId) async {
-          print("Auto Code Retrieval Timeout");
-          setState(() {
-            _verificationId = verificationId;
-            pageState = LoginPageState.SHOW_ENTER_OTP_STATE;
-          });
-        });
+    await AuthService.verifyViaOtp(phoneNumber: userPhoneNumber, verificationCompletedFn: _verificationCompletedFn, codeAutoRetrievalTimeoutFn: _codeAutoRetrievalTimeoutFn, codeSentFn: _codeSentFn);
   }
+
+
 
   Future<void> _loginInUsingSmsCode() async {
     PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: _verificationId, smsCode: _otpController.text.trim());
     // TODO : Add some checks here
 
-    await _signInViaPhoneAuthCredentials(credential);
+    await AuthService.signInViaPhoneAuthCredentials(credential);
   }
 
-  _signInViaPhoneAuthCredentials(PhoneAuthCredential credential) async {
-    try{
-      await _auth.signInWithCredential(credential);
-      print("User Signed In successfully.");
-    } on FirebaseAuthException catch(e){
-      print("Something went wrong : $e");
-    }
+  _verificationCompletedFn(PhoneAuthCredential credential) async {
+  print("Verified Successfully : $credential");
+  try {
+    await AuthService.signInViaPhoneAuthCredentials(credential);
+  }catch(e){
+    print("Something went wrong : $e");
+    setState(() {
+      pageState = LoginPageState.SHOW_ENTER_PHONE_NUMBER_STATE;
+    });
   }
+}
+
+  _codeSentFn(verificationId, int? forceResendToken) async {
+    // Show OTP Page
+    setState(() {
+      pageState = LoginPageState.SHOW_VERIFICATION_IN_PROGRESS_STATE;
+    });
+    print("Code Sent : $verificationId , $forceResendToken");
+  }
+
+  _codeAutoRetrievalTimeoutFn(String verificationId) {
+    print("Auto Code Retrieval Timeout");
+    setState(() {
+      _verificationId = verificationId;
+      pageState = LoginPageState.SHOW_ENTER_OTP_STATE;
+    });
+  }
+
+
 }

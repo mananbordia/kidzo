@@ -6,6 +6,7 @@ import 'package:kidzo/screens/afterLogin.dart';
 import 'package:kidzo/screens/home.dart';
 import 'package:kidzo/screens/login.dart';
 import 'package:kidzo/screens/update_profile.dart';
+import 'package:kidzo/utils/firebaseContent.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
+        stream: fAuth.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if(snapshot.hasData){
             return AfterLoginPage(userPhoneNumber: snapshot.data.phoneNumber);

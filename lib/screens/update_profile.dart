@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:kidzo/models/userData.dart';
 import 'package:kidzo/screens/home.dart';
+import 'package:kidzo/services/authentication.dart';
+import 'package:kidzo/services/database.dart';
 
 class UpdateProfilePage extends StatefulWidget {
   const UpdateProfilePage({Key? key}) : super(key: key);
@@ -82,25 +84,24 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
   }
 
   Future<void> _updateUserProfile() async {
-    CollectionReference userDataRef  = FirebaseFirestore.instance.collection("userData");
 
     //TODO : Add checks and resolve test part
-    String testPhoneNumber = "+911234567890";
+    String testPhoneNumber = AuthService.getCurrentUserPhoneNumber();
     UserData userData =
     UserData(
         createdAt: Timestamp.now(),
         lastUpdatedAt: Timestamp.now(),
         phoneNumber: testPhoneNumber, age: int.parse(_ageController.text),
-        affiliatedGroupIds: List<String>.empty(),
+        affiliatedGroupIds: <String>[],
         kidzoCoins: 1,
         name: _firstNameController.text + " " + _lastNameController.text,
       profileImgUrl: '',
     );
 
-    await userDataRef.doc(testPhoneNumber).set(userData.toJson()).then((value){
-
+    // TODO : Handle error case
+    await DatabaseService.addNewUser(userData).then((value){
       print("User added");
       return Navigator.pushReplacement(context, MaterialPageRoute(builder: (ctx)=> HomePage()));
-    }).onError((error, stackTrace) => print("Something went wrong : $error"));
+    });
   }
 }
