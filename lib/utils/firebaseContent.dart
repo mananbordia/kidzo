@@ -9,4 +9,4 @@ CollectionReference userDataRef = fStore.collection("userData");
 CollectionReference groupDataRef = fStore.collection("groupData");
 Uuid fUuid = Uuid();
 
-int fMaxOwnedGroups = 1;
+int fMaxOwnedGroups = 3;

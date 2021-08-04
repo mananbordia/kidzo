@@ -25,7 +25,7 @@ class AuthService{
 
   static verifyViaOtp({required String phoneNumber, verificationCompletedFn, codeSentFn, codeAutoRetrievalTimeoutFn}) async {
     await fAuth.verifyPhoneNumber(
-        timeout: Duration(seconds: 10),
+        timeout: Duration(seconds: 7),
         //Test : +911234567890  Otp : 123456
         phoneNumber: phoneNumber,
         // When verification is automatically done

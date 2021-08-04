@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kidzo/components/groupTile.dart';
 import 'package:kidzo/models/groupData.dart';
 import 'package:kidzo/models/messageData.dart';
 import 'package:kidzo/services/authentication.dart';
@@ -15,36 +16,40 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  GlobalKey<ScaffoldMessengerState> scaffoldMKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      key: scaffoldMKey,
       appBar: AppBar(title : Text("Homepage")),
       body: Column(children  : [Text("Hey Buddy how are you ? "),
         ElevatedButton(onPressed: _createNewGroup, child: Text("Create New Group"),),
-        ElevatedButton(onPressed: _check, child: Text("Check Get All Owned Groups"),),
-        FutureBuilder(
-            future: DatabaseService.getAllOwnedGroups(AuthService.getCurrentUserPhoneNumber()),
-            builder: (_, AsyncSnapshot<List<GroupData>> groupList){
-              if(groupList.connectionState == ConnectionState.waiting){
-                return Center(child: CircularProgressIndicator());
-              }
-              else{
-                if(groupList.hasData){
-                  List<GroupData> gList = groupList.data!;
-                  return ListView.builder(itemCount : gList.length,
-                    shrinkWrap: true,
-                    itemBuilder : (_, index){
-                    return Text(gList[index].groupName);
-                  }, );
+        RefreshIndicator(
+          onRefresh: (){
+            return Future.delayed(Duration(seconds: 1),(){
+            setState(() {});
+            });
+          },
+          child: FutureBuilder(
+              future: DatabaseService.getAllOwnedGroups(AuthService.getCurrentUserPhoneNumber()),
+              builder: (_, AsyncSnapshot<List<GroupData>> groupList){
+                if(groupList.connectionState == ConnectionState.waiting){
+                  return Center(child: CircularProgressIndicator());
                 }
                 else{
-                  return Text("No Data found.");
+                  if(groupList.hasData){
+                    List<GroupData> gList = groupList.data!;
+                    return ListView.builder(itemCount : gList.length,
+                      shrinkWrap: true,
+                      itemBuilder : (_, index){
+                      return GestureDetector(child : CTile(groupData : gList[index]),onLongPress: ()=>_removeGroup(gList[index].groupId) ,);
+                    }, );
+                  }
+                  else{
+                    return Text("No Data found.");
+                  }
                 }
-              }
-            },
+              },
+          ),
         )
       ]),
       floatingActionButton: FloatingActionButton(
@@ -59,16 +64,18 @@ class _HomePageState extends State<HomePage> {
   void _createNewGroup() async {
     String currentUserPhoneNumber = AuthService.getCurrentUserPhoneNumber();
     var currentUserData = await DatabaseService.getUserData(currentUserPhoneNumber);
-    var userOwnedGroupIds = await DatabaseService.getAffiliatedGroupDataList(currentUserPhoneNumber);
+    var userOwnedGroupIds = await DatabaseService.getAllOwnedGroupIds(currentUserPhoneNumber);
     print(userOwnedGroupIds);
     // TODO : Change the limit
-    if(userOwnedGroupIds.length == 0){
+    if(userOwnedGroupIds.length < fMaxOwnedGroups){
       String groupId = fUuid.v4();
       String groupName = "Alpha Beta";
       GroupData nGroupData = GroupData(groupName: groupName, groupId: groupId, creator: currentUserPhoneNumber, groupMembers: [currentUserPhoneNumber], groupIconUrl: "", description: "This is our first group", messageList: <MessageData>[]);
       await DatabaseService.addNewGroup(nGroupData);
       await currentUserData.addUserToGroup(groupId);
       print(currentUserData.affiliatedGroupIds);
+      setState(() {});
+      (new CSnackbar()).showSnackbar(context, "New Group was created.");
     }else{
       String msg = "Can't make another group. Max limit reached.";
       print(msg);
@@ -77,8 +84,8 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  Future<void> _check() async {
-    List<GroupData> allTestData = await DatabaseService.getAllOwnedGroups(AuthService.getCurrentUserPhoneNumber());
-    print(allTestData.length);
+  _removeGroup(String groupId) async {
+    await DatabaseService.removeGroup(groupId);
+    setState(() {});
   }
 }

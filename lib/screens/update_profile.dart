@@ -7,7 +7,8 @@ import 'package:kidzo/services/authentication.dart';
 import 'package:kidzo/services/database.dart';
 
 class UpdateProfilePage extends StatefulWidget {
-  const UpdateProfilePage({Key? key}) : super(key: key);
+  final refresh;
+  const UpdateProfilePage({Key? key, this.refresh}) : super(key: key);
 
   @override
   _UpdateProfilePageState createState() => _UpdateProfilePageState();
@@ -101,7 +102,7 @@ class _UpdateProfilePageState extends State<UpdateProfilePage> {
     // TODO : Handle error case
     await DatabaseService.addNewUser(userData).then((value){
       print("User added");
-      return Navigator.pushReplacement(context, MaterialPageRoute(builder: (ctx)=> HomePage()));
+      widget.refresh();
     });
   }
 }

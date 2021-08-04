@@ -1,11 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:kidzo/screens/afterLogin.dart';
-import 'package:kidzo/screens/home.dart';
 import 'package:kidzo/screens/login.dart';
-import 'package:kidzo/screens/update_profile.dart';
 import 'package:kidzo/utils/firebaseContent.dart';
 
 void main() async {
@@ -29,7 +25,7 @@ class MyApp extends StatelessWidget {
         stream: fAuth.authStateChanges(),
         builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
           if(snapshot.hasData){
-            return AfterLoginPage(userPhoneNumber: snapshot.data.phoneNumber);
+            return AfterLoginPage();
           }
           else{
             return LoginPage();
