@@ -8,9 +8,8 @@ class GroupData{
   String creator;
   String groupIconUrl;
   String description;
-  List<MessageData> messageList;
 
-  GroupData({required this.groupName, required this.groupId, required this.creator, required this.groupMembers, required this.groupIconUrl, required this.description, required this.messageList});
+  GroupData({required this.groupName, required this.groupId, required this.creator, required this.groupMembers, required this.groupIconUrl, required this.description});
 
   GroupData.fromJson(Map<String, dynamic> data):
       this(
@@ -20,7 +19,6 @@ class GroupData{
         groupMembers : data['groupMembers'].length == 0 ? [] : data['groupMembers'].map<String>((e) => e.toString()).toList(),
         groupIconUrl : data['groupIconUrl'],
         description : data['description'],
-        messageList : data['messageList'].length == 0 ? [] : data['messageList'].map((value) => MessageData.fromJson(value)).toList(),
       );
 
   Map<String, dynamic> toJson(){
@@ -31,7 +29,6 @@ class GroupData{
     data['groupMembers']  = this.groupMembers;
     data['groupIconUrl'] = this.groupIconUrl;
     data['description'] = this.description;
-    data['messageList'] = this.messageList.map((value) => value.toJson()).toList();
     return data;
   }
 

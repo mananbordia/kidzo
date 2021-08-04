@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kidzo/models/groupData.dart';
+import 'package:kidzo/services/authentication.dart';
 import 'package:kidzo/services/database.dart';
 import 'package:kidzo/utils/cSnackbar.dart';
+
+import 'groupChat.dart';
 
 class GroupPage extends StatefulWidget {
   final GroupData groupData;
@@ -14,6 +17,7 @@ class GroupPage extends StatefulWidget {
 class _GroupPageState extends State<GroupPage> {
    GroupData? _groupData;
    bool showRefresh = true;
+   String curUser = AuthService.getCurrentUserPhoneNumber();
 
   @override
   initState(){
@@ -32,6 +36,10 @@ class _GroupPageState extends State<GroupPage> {
           Text(_groupData!.description),
           _getListOfMembers(),
           _getListOfMembersNotInGroup(),
+          ElevatedButton(
+              onPressed: ()=>Navigator.push(context, MaterialPageRoute(builder: (ctx)=> GroupChat(groupId: _groupData!.groupId))),
+              child: Text("Open Chat"),
+          )
         ],
       ),
     );
@@ -77,6 +85,7 @@ class _GroupPageState extends State<GroupPage> {
   }
 
   _addMemberToGroup(String phoneNumber) async {
+    if(curUser == _groupData!.creator)
     try {
       bool result = await DatabaseService.addUserToGroup(phoneNumber, _groupData!.groupId);
       if(result) {
@@ -89,14 +98,21 @@ class _GroupPageState extends State<GroupPage> {
     }catch(e){
       (new CSnackbar()).showSnackbar(context, "Something Went Wrong");
     }
+    else{
+      (new CSnackbar()).showSnackbar(context, "You can't add members", true);
+    }
   }
 
    _removeMemberFromGroup(String phoneNumber) async {
+    if(curUser == phoneNumber || curUser == _groupData!.creator)
      try {
        bool result = await DatabaseService.removeUserFromGroup(phoneNumber, _groupData!.groupId);
        if(result) {
          _groupData = null;
          await _fetchGroupData();
+         if(curUser == phoneNumber){
+           Navigator.pop(context);
+         }
          (new CSnackbar()).showSnackbar(context, "Contact Removed from Group");
        }
        else
@@ -104,6 +120,9 @@ class _GroupPageState extends State<GroupPage> {
      }catch(e){
        (new CSnackbar()).showSnackbar(context, "Something Went Wrong");
      }
+    else{
+      (new CSnackbar()).showSnackbar(context, "You can't remove members", true);
+    }
    }
 
   _fetchGroupData() async {

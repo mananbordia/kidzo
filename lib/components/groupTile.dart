@@ -10,7 +10,7 @@ class CTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(title: Text(groupData.groupName), subtitle: _getSubTitle(), onTap: () => _openGroup(context), );
+    return ListTile(title: Text(groupData.groupName), subtitle: _getSubTitle(), onTap: () => _openGroup(context),  );
   }
 
   _getSubTitle() {
@@ -18,7 +18,7 @@ class CTile extends StatelessWidget {
       if(snapshot.connectionState==ConnectionState.waiting) {
           return CircularProgressIndicator();
       }else if(snapshot.hasData && snapshot.data != null){
-          return Text(snapshot.data.toString());
+          return Text(snapshot.data.toString() + "'s Group");
       }else{
         return Text("Something went wrong");
       }

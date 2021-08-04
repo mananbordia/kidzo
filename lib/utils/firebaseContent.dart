@@ -7,6 +7,9 @@ FirebaseFirestore fStore = FirebaseFirestore.instance;
 
 CollectionReference userDataRef = fStore.collection("userData");
 CollectionReference groupDataRef = fStore.collection("groupData");
+CollectionReference messageDataRef = fStore.collection("messageData");
+
+
 Uuid fUuid = Uuid();
 
 int fMaxOwnedGroups = 3;

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:kidzo/models/groupData.dart';
+import 'package:kidzo/models/messageData.dart';
 import 'package:kidzo/models/userData.dart';
 import 'package:kidzo/utils/firebaseContent.dart';
 
@@ -103,5 +104,14 @@ class DatabaseService{
     List<String> allUserPhoneNumber = await userDataRef.get().then((value) => (value.docs).map((e) => e.id).toList());
     return allUserPhoneNumber;
   }
+
+  static Stream<QuerySnapshot> getAllMessages(String groupId) {
+      return messageDataRef.doc(groupId).collection("messages").orderBy('sentAt',descending: true).snapshots();
+  }
+
+  static addMessage(String groupId, MessageData msgData) async {
+    await messageDataRef.doc(groupId).collection("messages").add(msgData.toJson());
+  }
+
 
 }

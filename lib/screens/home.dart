@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kidzo/components/groupTile.dart';
 import 'package:kidzo/models/groupData.dart';
-import 'package:kidzo/models/messageData.dart';
 import 'package:kidzo/services/authentication.dart';
 import 'package:kidzo/services/database.dart';
 import 'package:kidzo/utils/cSnackbar.dart';
-import 'package:kidzo/utils/debugPrint.dart';
 import 'package:kidzo/utils/firebaseContent.dart';
 
 class HomePage extends StatefulWidget {
@@ -16,11 +14,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String curUser = AuthService.getCurrentUserPhoneNumber();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title : Text("Homepage")),
+      appBar: AppBar(title : Text("Homepage"), actions: [Text("Signed In as : $curUser}")],),
       body: Column(children  : [Text("Hey Buddy how are you ? "),
         ElevatedButton(onPressed: _createNewGroup, child: Text("Create New Group"),),
         RefreshIndicator(
@@ -30,7 +29,7 @@ class _HomePageState extends State<HomePage> {
             });
           },
           child: FutureBuilder(
-              future: DatabaseService.getAllOwnedGroups(AuthService.getCurrentUserPhoneNumber()),
+              future: DatabaseService.getAffiliatedGroupDataList(curUser),
               builder: (_, AsyncSnapshot<List<GroupData>> groupList){
                 if(groupList.connectionState == ConnectionState.waiting){
                   return Center(child: CircularProgressIndicator());
@@ -41,7 +40,7 @@ class _HomePageState extends State<HomePage> {
                     return ListView.builder(itemCount : gList.length,
                       shrinkWrap: true,
                       itemBuilder : (_, index){
-                      return GestureDetector(child : CTile(groupData : gList[index]),onLongPress: ()=>_removeGroup(gList[index].groupId) ,);
+                      return GestureDetector(child : CTile(groupData : gList[index]),onLongPress: ()=>_removeGroup(gList[index]) ,);
                     }, );
                   }
                   else{
@@ -62,7 +61,7 @@ class _HomePageState extends State<HomePage> {
 
 
   void _createNewGroup() async {
-    String currentUserPhoneNumber = AuthService.getCurrentUserPhoneNumber();
+    String currentUserPhoneNumber = curUser;
     var currentUserData = await DatabaseService.getUserData(currentUserPhoneNumber);
     var userOwnedGroupIds = await DatabaseService.getAllOwnedGroupIds(currentUserPhoneNumber);
     print(userOwnedGroupIds);
@@ -70,7 +69,7 @@ class _HomePageState extends State<HomePage> {
     if(userOwnedGroupIds.length < fMaxOwnedGroups){
       String groupId = fUuid.v4();
       String groupName = "Alpha Beta";
-      GroupData nGroupData = GroupData(groupName: groupName, groupId: groupId, creator: currentUserPhoneNumber, groupMembers: [currentUserPhoneNumber], groupIconUrl: "", description: "This is our first group", messageList: <MessageData>[]);
+      GroupData nGroupData = GroupData(groupName: groupName, groupId: groupId, creator: currentUserPhoneNumber, groupMembers: [currentUserPhoneNumber], groupIconUrl: "", description: "This is our first group");
       await DatabaseService.addNewGroup(nGroupData);
       await currentUserData.addUserToGroup(groupId);
       print(currentUserData.affiliatedGroupIds);
@@ -84,8 +83,13 @@ class _HomePageState extends State<HomePage> {
 
   }
 
-  _removeGroup(String groupId) async {
-    await DatabaseService.removeGroup(groupId);
-    setState(() {});
+  _removeGroup(GroupData nGroupData) async {
+    if(nGroupData.creator == curUser) {
+      await DatabaseService.removeGroup(nGroupData.groupId);
+      setState(() {});
+      (new CSnackbar()).showSnackbar(context, "Group was Deleted.");
+    }else{
+      (new CSnackbar()).showSnackbar(context, "Access Denied. Can't delete other's group.",true);
+    }
   }
 }
