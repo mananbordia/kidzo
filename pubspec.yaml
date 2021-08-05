@@ -27,6 +27,7 @@ dependencies:
   firebase_core:
   cloud_firestore: ^2.4.0
   uuid: ^3.0.4
+  firebase_dynamic_links: ^2.0.7
 
 
 

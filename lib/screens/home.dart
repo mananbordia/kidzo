@@ -1,3 +1,4 @@
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:flutter/material.dart';
 import 'package:kidzo/components/groupTile.dart';
 import 'package:kidzo/models/groupData.dart';
@@ -17,9 +18,40 @@ class _HomePageState extends State<HomePage> {
   String curUser = AuthService.getCurrentUserPhoneNumber();
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    initDynamicLinks();
+  }
+
+  void initDynamicLinks() async {
+    FirebaseDynamicLinks.instance.onLink(
+        onSuccess: (PendingDynamicLinkData? dynamicLink ) async {
+          if(dynamicLink != null) {
+            final Uri deepLink = dynamicLink.link;
+            String groupId = deepLink.queryParameters['groupId'] as String;
+            (CSnackbar()).showSnackbar(context, "Successfully Added to New Group");
+            // await DatabaseService.addUserToGroup(curUser, groupId).then((value) => );
+          }
+        },
+        onError: (OnLinkErrorException e) async {
+          print('onLinkError');
+          print(e.message);
+        }
+    );
+
+    // final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
+    // final Uri deepLink = data?.link;
+    //
+    // if (deepLink != null) {
+    //   Navigator.pushNamed(context, deepLink.path);
+    // }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title : Text("Homepage"), actions: [Text("Signed In as : $curUser}")],),
+      appBar: AppBar(title : Text("Homepage"), actions: [Text("Signed In as : $curUser")],),
       body: Column(children  : [Text("Hey Buddy how are you ? "),
         ElevatedButton(onPressed: _createNewGroup, child: Text("Create New Group"),),
         RefreshIndicator(

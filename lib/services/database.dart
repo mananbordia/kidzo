@@ -7,7 +7,7 @@ import 'package:kidzo/utils/firebaseContent.dart';
 class DatabaseService{
   static Future<UserData> getUserData(String phoneNumber) async {
     UserData userData = await userDataRef.doc(phoneNumber).get().then((value) => UserData.fromJson(value.data() as Map<String, dynamic>));
-    // DebugPrinter.print("Fetching user : ${userData.name}");
+
     return userData;
   }
 
@@ -64,7 +64,7 @@ class DatabaseService{
 
   static Future<GroupData> getGroupData(String groupId) async {
     GroupData groupData = await groupDataRef.doc(groupId).get().then((value) => GroupData.fromJson(value.data() as Map<String, dynamic>));
-    // DebugPrinter.print("Fetching user : ${groupData.groupName}");
+    // print("Success : GroupData");
     return groupData;
   }
 
@@ -75,11 +75,18 @@ class DatabaseService{
 
   static Future<List<GroupData>> getAffiliatedGroupDataList(String phoneNumber) async {
     List<String> affiliatedGroupIds = await getAffiliatedGroupIds(phoneNumber);
+
     List<GroupData> affiliatedGroupDataList = <GroupData>[];
     for(var groupId in affiliatedGroupIds){
-        var groupData = await getGroupData(groupId);
-        affiliatedGroupDataList.add(groupData);
+        try {
+          var groupData = await getGroupData(groupId);
+
+          affiliatedGroupDataList.add(groupData);
+        }catch(e){
+          print("Something went wrong : $e");
+        }
     }
+    // print(affiliatedGroupDataList.length);
     return affiliatedGroupDataList;
   }
 
